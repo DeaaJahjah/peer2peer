@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "903345078844",
+    "project_id": "peer2peer-1dfa0",
+    "storage_bucket": "peer2peer-1dfa0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903345078844:android:ab6aaf579e97066858b939",
+        "android_client_info": {
+          "package_name": "com.example.lets_buy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPQBNfBd3H4dBnTCtZy5CHK9PcKLibgY8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
