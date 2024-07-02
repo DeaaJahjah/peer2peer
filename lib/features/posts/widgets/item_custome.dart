@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:image_network/image_network.dart';
 import 'package:lets_buy/core/config/constant/constant.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ItemCustom extends StatelessWidget {
   final String? urlImage;
@@ -46,9 +44,9 @@ class ItemCustom extends StatelessWidget {
                       height: 130,
                       width: 130,
                       margin: const EdgeInsets.only(left: 5, right: 20),
-                      child: (urlImage != null)
+                      child: (urlImage != null && urlImage != '')
                           ? Image.network(urlImage!, fit: BoxFit.cover)
-                          : const Center(child: Text('لا يوجد صور', style: style2))),
+                          : const Center(child: Text('لا يوجد صور', style: style1))),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     // mainAxisAlignment: MainAxisAlignment.spaceAround,

@@ -1,20 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user_model.g.dart';
 
 @JsonSerializable()
 class UserModel {
-  String? id;
+  int? id;
   final String name;
   final String email;
-  final String bio;
+  final String? bio;
   @JsonKey(name: 'phone')
   final String phoneNumber;
   @JsonKey(name: 'avatar')
-  final String imgUrl;
+  final String? imgUrl;
   @JsonKey(name: 'fcm_user_id')
   final String? fcmUserId;
+  final String? imageUrl;
+
 
   UserModel({
     this.id,
@@ -24,16 +25,17 @@ class UserModel {
     required this.bio,
     required this.imgUrl,
     this.fcmUserId,
+    this.imageUrl,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
-  factory UserModel.fromFirestore(DocumentSnapshot documentSnapshot) {
-    UserModel userModel = UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
+  // factory UserModel.fromFirestore(DocumentSnapshot documentSnapshot) {
+  //   UserModel userModel = UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
 
-    userModel.id = documentSnapshot.id;
-    return userModel;
-  }
+  //   userModel.id = documentSnapshot.id;
+  //   return userModel;
+  // }
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 }

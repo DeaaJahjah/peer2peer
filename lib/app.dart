@@ -4,6 +4,7 @@ import 'package:lets_buy/core/config/constant/constant.dart';
 import 'package:lets_buy/core/config/routes/routes.dart';
 import 'package:lets_buy/features/auth/Providers/auth_state_provider.dart';
 import 'package:lets_buy/features/posts/providers/posts_provider.dart';
+import 'package:lets_buy/features/search/search_provider.dart';
 import 'package:provider/provider.dart';
 // import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
@@ -22,9 +23,9 @@ class App extends StatelessWidget {
           create: (_) => AuthSataProvider(),
         ),
 
-        // ChangeNotifierProvider<SearchProvider>(
-        //   create: (_) => SearchProvider(),
-        // ),
+        ChangeNotifierProvider<SearchProvider>(
+          create: (_) => SearchProvider(),
+        ),
         ChangeNotifierProvider<UserInfoProvider>(
           create: (_) => UserInfoProvider(),
         ),

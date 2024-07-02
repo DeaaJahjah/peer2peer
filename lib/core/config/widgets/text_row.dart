@@ -10,18 +10,19 @@ class TextRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
-      child: Row(children: [
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title,
             style: const TextStyle(
-              color: purple,
+              color: dark,
               fontFamily: font,
               fontSize: 14,
               fontWeight: FontWeight.bold,
             )),
+        const SizedBox(width: 10),
         Expanded(
             child: Text(data,
                 style: const TextStyle(
-                  color: white,
+                  color: dark,
                   fontFamily: font,
                   fontSize: 14,
                 ),

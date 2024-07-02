@@ -15,10 +15,11 @@ class _DropDownCustomState extends State<DropDownCustom> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       height: 40,
       // width: 120,
       decoration: BoxDecoration(
-        border: Border.all(color: purple),
+        border: Border.all(color: dark),
         borderRadius: BorderRadius.circular(15),
       ),
       child: DropdownButtonHideUnderline(
@@ -30,8 +31,8 @@ class _DropDownCustomState extends State<DropDownCustom> {
           style: style1,
           alignment: AlignmentDirectional.center,
           focusColor: purple,
-          value: widget.selectedItem,
           isDense: true,
+          value: widget.selectedItem,
           onChanged: widget.onChanged,
           items: widget.categories.map((String items) {
             return DropdownMenuItem(

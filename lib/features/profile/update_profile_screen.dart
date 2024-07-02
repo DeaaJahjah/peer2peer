@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lets_buy/core/config/constant/constant.dart';
 import 'package:lets_buy/core/config/enums/enums.dart';
+import 'package:lets_buy/core/config/extensions/firebase.dart';
 import 'package:lets_buy/core/config/widgets/elevated_button_custom.dart';
 import 'package:lets_buy/core/config/widgets/text_field_custome.dart';
 import 'package:lets_buy/features/auth/Providers/auth_state_provider.dart';
 import 'package:lets_buy/features/auth/Services/file_services.dart';
 import 'package:lets_buy/features/auth/models/user_model.dart';
+import 'package:lets_buy/features/posts/services/user_db_service.dart';
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 
@@ -31,7 +33,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   bool firstTime = false;
   String fileName = '';
   File? imageFile;
-  String oldImage = '';
+  String? oldImage = '';
   var formKey = GlobalKey<FormState>();
   _pickImage() async {
     final picker = ImagePicker();
@@ -51,8 +53,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     if (!firstTime) {
       userName.text = user.name;
       email.text = user.email;
-      address.text = user.bio;
-      oldImage = user.imgUrl;
+      address.text = user.bio ?? '';
+      oldImage = user.imageUrl;
       phoneController.text = user.phoneNumber;
       firstTime = true;
     }
@@ -63,9 +65,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: dark,
+      backgroundColor: white,
       appBar: AppBar(
-        backgroundColor: dark,
+        backgroundColor: purple,
         elevation: 0.0,
         centerTitle: true,
         title: const Text('تعديل الملف الشخصي', style: appBarTextStyle),
@@ -85,11 +87,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 backgroundColor: purple,
                 radius: 57,
                 child: (pickedimage == null)
-                    ? CircleAvatar(
-                        backgroundColor: dark,
-                        radius: 55,
-                        backgroundImage: NetworkImage(oldImage),
-                      )
+                    ? oldImage != null
+                        ? CircleAvatar(
+                            backgroundColor: dark,
+                            radius: 55,
+                            backgroundImage: NetworkImage(oldImage!),
+                          )
+                        : const CircleAvatar(
+                            child: Icon(Icons.person),
+                          )
                     : CircleAvatar(radius: 60, backgroundImage: FileImage(imageFile!)),
               ),
             ),
@@ -105,13 +111,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             const SizedBox(
               height: 20,
             ),
-            TextFieldCustom(text: 'البريد الإلكتروني', controller: email, icon: Icons.email),
-            const SizedBox(
-              height: 20,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
+            // TextFieldCustom(text: 'البريد الإلكتروني', controller: email, icon: Icons.email),
+            // const SizedBox(
+            //   height: 20,
+            // ),
+            // const SizedBox(
+            //   height: 20,
+            // ),
             TextFieldCustom(text: 'العنوان', controller: address, icon: Icons.location_on),
             const SizedBox(
               height: 24,
@@ -123,25 +129,30 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         onPressed: () async {
                           if (formKey.currentState!.validate()) {
                             if (confirmPassword.text == password.text) {
-                              String url = oldImage;
+                              String? url = oldImage;
                               state.changeAuthState(newState: AuthState.waiting);
                               if (imageFile != null) {
                                 url = await FileService().uploadeimage(fileName, imageFile!, context);
+
                               }
 
                               if (url != 'error') {
+                                await context.logedInUser!.updatePhotoURL(url);
                                 UserModel user = UserModel(
                                     name: userName.text,
                                     email: email.text,
                                     phoneNumber: phoneController.text,
                                     bio: address.text,
-                                    imgUrl: url);
+                                    imgUrl: '',
+                                    imageUrl: url);
                                 // await UserDbServices().updateUser(user, context);
+
+                                await UserDbServices().updateUser(user);
                                 state.changeAuthState(newState: AuthState.notSet);
 
                                 var snackBar = const SnackBar(content: Text('تم تعديل الملف الشخصي بنجاح'));
                                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
+                                setState(() {});
                                 Navigator.of(context).pop();
                               } else {
                                 state.changeAuthState(newState: AuthState.notSet);

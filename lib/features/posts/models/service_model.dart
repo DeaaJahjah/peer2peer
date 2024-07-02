@@ -14,16 +14,18 @@ class ServiceModel {
   final int categoryId;
   final String? image;
   final String description;
-  final String createdAt;
-  final String updatedAt;
+  final String? createdAt;
+  final String? updatedAt;
   final int userId;
   final String location;
-  final int searchValue;
-  final double price;
-  final bool isFavorite;
+  final num price;
+  final int? searchValue;
+  final bool? isFavorite;
   final TypeModel type;
   final Category category;
   final UserModel user;
+  
+  final String? imageUrl;
 
   ServiceModel({
     required this.id,
@@ -42,7 +44,46 @@ class ServiceModel {
     required this.type,
     required this.category,
     required this.user,
+      this.imageUrl
   });
+
+  ServiceModel copyWith({
+    int? id,
+    String? name,
+    int? typeId,
+    int? categoryId,
+    String? image,
+    String? description,
+    String? createdAt,
+    String? updatedAt,
+    int? userId,
+    String? location,
+    num? price,
+    int? searchValue,
+    bool? isFavorite,
+    TypeModel? type,
+    Category? category,
+    UserModel? user,
+  }) {
+    return ServiceModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      typeId: typeId ?? this.typeId,
+      categoryId: categoryId ?? this.categoryId,
+      image: image ?? this.image,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      userId: userId ?? this.userId,
+      location: location ?? this.location,
+      price: price ?? this.price,
+      searchValue: searchValue ?? this.searchValue,
+      isFavorite: isFavorite ?? this.isFavorite,
+      type: type ?? this.type,
+      category: category ?? this.category,
+      user: user ?? this.user,
+    );
+  }
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) => _$ContentFromJson(json);
 

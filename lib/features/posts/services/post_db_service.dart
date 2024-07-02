@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:lets_buy/core/config/enums/enums.dart';
 import 'package:lets_buy/core/utils/globals.dart';
+import 'package:lets_buy/core/utils/shred_prefs.dart';
 import 'package:lets_buy/features/posts/models/result_model.dart';
 import 'package:lets_buy/features/posts/models/service_model.dart';
+import 'package:mime/mime.dart';
 
 class PostDbService {
   //TODO: get ALL and filtter
@@ -19,7 +19,10 @@ class PostDbService {
     try {
       final response = await http.get(
         Uri.parse(url),
-        headers: Globals.headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${SharedPrefs.prefs.getString('token')}',
+        },
       );
       // final data = fetchedData['data'];
 
@@ -43,20 +46,21 @@ class PostDbService {
   Future<List<ServiceModel>> getMyServices() async {
     final url = Globals.serverURL + "/user_services";
 
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: Globals.headers,
-      );
-      // final data = fetchedData['data'];
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${SharedPrefs.prefs.getString('token')}',
+      },
+    );
+    // final data = fetchedData['data'];
 
-      if (response.statusCode == 200) {
-        final List data = json.decode(response.body);
-        return data.map((e) => ServiceModel.fromJson(e)).toList();
-      } else {
-        return [];
-      }
-    } catch (e) {
+    if (response.statusCode == 200) {
+      final List data = json.decode(response.body);
+      // print(response.body);
+
+      return data.map((e) => ServiceModel.fromJson(e)).toList();
+    } else {
       return [];
     }
   }
@@ -68,7 +72,10 @@ class PostDbService {
     try {
       final response = await http.get(
         Uri.parse(url),
-        headers: Globals.headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${SharedPrefs.prefs.getString('token')}',
+        },
       );
       // final data = fetchedData['data'];
 
@@ -88,8 +95,37 @@ class PostDbService {
     final url = Globals.serverURL + "/add_to_favorit";
 
     try {
-      final response =
-          await http.post(Uri.parse(url), headers: Globals.headers, body: json.encode({'service_id': serviceId}));
+      final response = await http.post(Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${SharedPrefs.prefs.getString('token')}',
+          },
+          body: json.encode({'service_id': serviceId}));
+      // final data = fetchedData['data'];
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> promotPost({required int serviceId, required int promotionValue}) async {
+    final url = Globals.serverURL + "/add_search_value/$serviceId";
+
+    try {
+      final response = await http.post(Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${SharedPrefs.prefs.getString('token')}',
+          },
+          body: json.encode({
+            'service_id': serviceId,
+            "search_value": promotionValue,
+          }));
       // final data = fetchedData['data'];
 
       if (response.statusCode == 200) {
@@ -107,8 +143,12 @@ class PostDbService {
     final url = Globals.serverURL + "/remove_from_favorit";
 
     try {
-      final response =
-          await http.post(Uri.parse(url), headers: Globals.headers, body: json.encode({'service_id': serviceId}));
+      final response = await http.post(Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${SharedPrefs.prefs.getString('token')}',
+          },
+          body: json.encode({'service_id': serviceId}));
       // final data = fetchedData['data'];
 
       if (response.statusCode == 200) {
@@ -126,8 +166,12 @@ class PostDbService {
     final url = Globals.serverURL + "/services/$serviceId";
 
     try {
-      final response =
-          await http.post(Uri.parse(url), headers: Globals.headers, body: json.encode({'service_id': serviceId}));
+      final response = await http.delete(Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${SharedPrefs.prefs.getString('token')}',
+          },
+          body: json.encode({'service_id': serviceId}));
       // final data = fetchedData['data'];
 
       if (response.statusCode == 200) {
@@ -141,7 +185,7 @@ class PostDbService {
   }
 
   //TODO: Add post
-  Future<ServiceModel?> addNewService({
+  Future<String> addNewService({
     String? image,
     required String name,
     required ServiceType serviceType,
@@ -150,42 +194,49 @@ class PostDbService {
     required double price,
     required String description,
     required String location,
+    final String? imageUrl,
   }) async {
     ///TODO: add price and service type enum
 
     final url = Globals.serverURL + "/services";
+    String? img64;
+    String? mimeType;
+    if (image != null) {
+      final bytes = File(image).readAsBytesSync();
+      img64 = base64Encode(bytes);
+
+      mimeType = lookupMimeType(image);
+
+      print('mimeType: $mimeType');
+    }
 
     try {
-      final formMap = FormData.fromMap({
-        'image': image != null
-            ? MultipartFile.fromStream(
-                () => File(image).readAsBytes().asStream(),
-                File(image).lengthSync(),
-                filename: image,
-                contentType: MediaType('image', 'jpeg'),
-              )
-            : image
-      }..addAll({
-          'name': name,
-          'service_type': serviceType.name,
-          'type_id': typeId,
-          'category_id': categoryId,
-          'description': description,
-          'location': location,
-          'price': price
-        }));
-
-      final response = await Dio().post(url, data: formMap, options: Options(headers: Globals.headers));
+      final response = await http.post(Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${SharedPrefs.prefs.getString('token')}',
+          },
+          body: json.encode({
+            if (image != null) 'image': "data:$mimeType;base64,$img64",
+            'name': name,
+            'service_type': serviceType.name,
+            'type_id': typeId,
+            'category_id': categoryId,
+            'description': description,
+            'location': location,
+            'price': price,
+            'image_url': imageUrl,
+          }));
 
       if (response.statusCode == 200) {
-        final data = response.data;
-
-        return ServiceModel.fromJson(data);
+        final data = response.body;
+        return 'success';
       } else {
-        return null;
+        return 'error';
       }
     } catch (e) {
-      return null;
+      print(e.toString());
+      return e.toString();
     }
   }
 

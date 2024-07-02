@@ -11,15 +11,15 @@ const Color gray = Color.fromARGB(255, 224, 223, 223);
 
 const String font = 'Tajawal';
 
-const TextStyle textStyle = TextStyle(color: white, fontFamily: font, fontSize: 12);
+const TextStyle textStyle = TextStyle(color: dark, fontFamily: font, fontSize: 12);
 
-const TextStyle itemTextStyle = TextStyle(color: white, fontFamily: font, fontSize: 18);
+const TextStyle itemTextStyle = TextStyle(color: dark, fontFamily: font, fontSize: 18);
 
 const TextStyle appBarTextStyle = TextStyle(color: dark, fontFamily: font, fontWeight: FontWeight.bold, fontSize: 16);
 
-const TextStyle style1 = TextStyle(color: purple, fontFamily: font, fontSize: 14, fontWeight: FontWeight.bold);
+const TextStyle style1 = TextStyle(color: dark, fontFamily: font, fontSize: 14, fontWeight: FontWeight.bold);
 
-const TextStyle style2 = TextStyle(color: white, fontFamily: font, fontSize: 12, fontWeight: FontWeight.bold);
+const TextStyle style2 = TextStyle(color: dark, fontFamily: font, fontSize: 12, fontWeight: FontWeight.bold);
 
 const sizedBoxSmall = SizedBox(height: 10);
 
@@ -50,7 +50,7 @@ var categories = {
   'كتب': ['كتب علمية', 'كتب دينية', 'روايات', 'كتب ثقافية'],
 };
 
-List<String> productStatusList = ['جديد', 'مستعمل'];
+List<String> productStatusList = ['تقديم خدمة', 'طلب خدمة'];
 
 List<String> cities = [
   'حمص',

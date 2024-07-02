@@ -23,20 +23,30 @@ class FlutterFireAuthServices {
   Future<UserCredential?> signIn(
       {required String email, required String password, required BuildContext context}) async {
     try {
+
       UserCredential credential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
       String result = await AuthService().loginByEmail(email: email, password: password);
 
       if (result == 'faluire') {
-        const snakBar = SnackBar(content: Text('حدث خطأ عند انشاء الحساب'));
+        const snakBar = SnackBar(content: Text('حدث خطأ عند تسجيل الدخول الحساب'));
         ScaffoldMessenger.of(context).showSnackBar(snakBar);
         return null;
       }
 
       return credential;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided.');
+      } else {
+        print('Failed to sign in: $e');
+      }
       final snakBar = SnackBar(content: Text(e.message.toString()));
       ScaffoldMessenger.of(context).showSnackBar(snakBar);
-    }
+    } 
+    
+   
     return null;
   }
 
@@ -45,7 +55,7 @@ class FlutterFireAuthServices {
     context.read<AuthSataProvider>().changeAuthState(newState: AuthState.waiting);
     try {
       var user = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
-
+  
       return user;
     } on FirebaseAuthException catch (e) {
       context.read<AuthSataProvider>().changeAuthState(newState: AuthState.notSet);

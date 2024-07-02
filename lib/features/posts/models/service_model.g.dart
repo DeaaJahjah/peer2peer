@@ -13,16 +13,19 @@ ServiceModel _$ContentFromJson(Map<String, dynamic> json) => ServiceModel(
       categoryId: json['category_id'] as int,
       image: json['image'] as String?,
       description: json['description'] as String,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
+      createdAt: json['created_at'] as String?,
+      updatedAt: json['updated_at'] as String?,
       userId: json['user_id'] as int,
       location: json['location'] as String,
-      searchValue: json['search_value'] as int,
-      price: json['price'] as double,
-      isFavorite: json['is_favorite'] as bool,
+      searchValue: json['search_value'] as int?,
+      imageUrl: json['image_url'] as String?,
+      price: json['price'] as num,
+      isFavorite: json['is_favorite'] as bool?,
       type: TypeModel.fromJson(json['type'] as Map<String, dynamic>),
       category: Category.fromJson(json['category'] as Map<String, dynamic>),
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
+      user: UserModel.fromJson(
+        json['user'] as Map<String, dynamic>,
+      ),
     );
 
 Map<String, dynamic> _$ContentToJson(ServiceModel instance) => <String, dynamic>{
@@ -41,5 +44,6 @@ Map<String, dynamic> _$ContentToJson(ServiceModel instance) => <String, dynamic>
       'type': instance.type.toJson(),
       'category': instance.category.toJson(),
       'user': instance.user.toJson(),
-      'price': instance.price
+      'price': instance.price,
+      'image_url': instance.imageUrl,
     };

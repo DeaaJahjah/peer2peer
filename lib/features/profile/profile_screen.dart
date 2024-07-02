@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lets_buy/core/config/constant/constant.dart';
-import 'package:lets_buy/core/config/widgets/elevated_button_custom.dart';
 import 'package:lets_buy/core/utils/shred_prefs.dart';
-import 'package:lets_buy/features/auth/Services/authentecation_service.dart';
 import 'package:lets_buy/features/auth/models/user_model.dart';
 import 'package:lets_buy/features/posts/models/service_model.dart';
 import 'package:lets_buy/features/posts/screens/my_posts_screen.dart';
@@ -23,6 +21,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: purple,
+        elevation: 0.0,
+        centerTitle: true,
+        title: const Text('الملف الشخصي', style: appBarTextStyle),
+      ),
       body: FutureBuilder<UserModel?>(
           future: UserDbServices().getUser(userId: widget.userId ?? SharedPrefs.prefs.getInt('id')),
           builder: (context, snapshot) {
@@ -30,63 +34,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
               return SingleChildScrollView(
                 child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
                   SizedBox(
-                    height: 280,
-                    child: Stack(children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 200,
-                        decoration: const BoxDecoration(
-                            borderRadius:
-                                BorderRadius.only(bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25))),
-                      ),
-                      Positioned(
-                        top: 130,
-                        left: (MediaQuery.of(context).size.width / 2) - 72,
-                        child: Column(
-                          children: [
-                            // (client.profilePicUrl != '')?
-                            CircleAvatar(
-                              radius: 72,
+                    // height: 100,
+
+                    child: Container(
+                      // radius: 150,
+                      width: 150,
+                      height: 150,
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      child: snapshot.data!.imageUrl != null
+                          ? CircleAvatar(
                               backgroundColor: purple,
-                              child: CircleAvatar(
-                                backgroundColor: purple,
-                                radius: 70,
-                                backgroundImage: NetworkImage(snapshot.data!.imgUrl),
+                              minRadius: 200,
+                              maxRadius: 200,
+                              backgroundImage: NetworkImage(snapshot.data!.imageUrl!),
+                            )
+                          : const CircleAvatar(
+                              child: Icon(
+                                Icons.person,
+                                size: 100,
+                                color: dark,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ]),
+                    ),
                   ),
+                  sizedBoxSmall,
                   Text(
                     snapshot.data!.name,
-                    style: const TextStyle(color: white, fontFamily: font, fontWeight: FontWeight.bold, fontSize: 20),
+                    style: const TextStyle(color: dark, fontFamily: font, fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                   Text(
                     snapshot.data!.email,
-                    style: const TextStyle(color: white, fontFamily: font, fontSize: 18),
+                    style: const TextStyle(color: dark, fontFamily: font, fontSize: 18),
                   ),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(snapshot.data!.bio, style: const TextStyle(color: white, fontFamily: font, fontSize: 18)),
                       const Icon(
-                        Icons.location_on,
-                        color: white,
+                        Icons.description,
+                        color: dark,
                         size: 25,
                       ),
+                      Text(snapshot.data!.bio ?? 'لا يوجد وصف',
+                          style: const TextStyle(color: dark, fontFamily: font, fontSize: 18)),
                     ],
                   ),
-                  Padding(
+                  if (widget.userId == null)
+                    Padding(
                     padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
                     child: TextButton(
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(dark.withOpacity(0.2)),
                         ),
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(MyPostsScreen.routeName);
+                          onPressed: () async {
+                            await Navigator.of(context).pushNamed(MyPostsScreen.routeName);
+                            setState(() {});
                         },
                         child: FutureBuilder<List<ServiceModel>>(
                             future: PostDbService().getMyServices(),
@@ -97,12 +99,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: white,
+                                        backgroundColor: dark,
                                       radius: 10,
                                       child: Padding(
                                         padding: const EdgeInsets.only(top: 5),
                                         child: Text(length.toString(),
-                                            style: const TextStyle(color: purple, fontSize: 10)),
+                                              style: const TextStyle(color: white, fontSize: 10)),
                                       ),
                                     ),
                                     const SizedBox(width: 10),
@@ -115,11 +117,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 );
                               }
                               return const Center(
-                                child: CircularProgressIndicator(color: purple),
+                                  child: CircularProgressIndicator(color: dark),
                               );
                             })),
                   ),
-                  Padding(
+                  if (widget.userId == null)
+                    Padding(
                     padding: const EdgeInsets.fromLTRB(40, 0, 40, 15),
                     child: TextButton(
                         style: ButtonStyle(
@@ -136,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Icon(
                               Icons.edit,
-                              color: white,
+                                color: dark,
                             ),
                             SizedBox(width: 10),
                             Text(
@@ -147,13 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         )),
                   ),
-                  ElevatedButtonCustom(
-                    onPressed: () async {
-                      await FlutterFireAuthServices().signOut(context);
-                    },
-                    text: 'تسجيل خروج',
-                    color: purple,
-                  )
+                  
                 ]),
               );
             }

@@ -16,7 +16,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: dark,
+      backgroundColor: white,
       appBar: AppBar(
           backgroundColor: purple,
           elevation: 0.0,
@@ -33,7 +33,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                 itemBuilder: (context, index) {
                   var post = favorites[index];
                   return ItemCustom(
-                    urlImage: post.image!,
+                    urlImage: post.imageUrl!,
                     address: post.location,
                     type: post.type.name,
                     category: post.category.name,

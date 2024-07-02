@@ -58,34 +58,38 @@ class _LoginScreenState extends State<LoginScreen> {
                           keyboardType: TextInputType.number, text: 'البريد الالكتروني', controller: emailController),
                       sizedBoxMedium,
                       TextFieldCustom(
-                          keyboardType: TextInputType.number, text: 'كلمة المرور', controller: emailController),
+                          keyboardType: TextInputType.number, text: 'كلمة المرور', controller: passwordcontroller),
                       sizedBoxLarge,
                       isLoading
                           ? const CustomProgress()
                           : ElevatedButtonCustom(
-                              // color: Colors.black,
+                              color: dark,
+                              textColor: white,
                               text: 'تسجيل دخول',
                               onPressed: () async {
-                                isLoading = true;
-                                setState(() {});
                                 if (emailController.text.isEmpty || passwordcontroller.text.isEmpty) {
                                   showErrorSnackBar(context, 'يجب عليك ادخال البريد الالكتروني وكلمة السر');
 
-                                  isLoading = false;
-                                  setState(() {});
                                   return;
                                 }
                                 if (!emailController.text.contains('@')) {
                                   showErrorSnackBar(context, 'يجب ادخال بريد الكتروني صالح');
 
-                                  isLoading = false;
-                                  setState(() {});
                                   return;
                                 }
 
+                                setState(() {
+                                  isLoading = true;
+                                });
+
+                                setState(() {});
                                 final result = await FlutterFireAuthServices().signIn(
                                     email: emailController.text, password: passwordcontroller.text, context: context);
 
+                                print(result);
+                                setState(() {
+                                  isLoading = true;
+                                });
                                 if (result != null) {
                                   Navigator.of(context).pushNamedAndRemoveUntil(HomeScreen.routeName, (route) => false);
                                 }

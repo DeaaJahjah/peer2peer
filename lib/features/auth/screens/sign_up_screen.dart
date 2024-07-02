@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lets_buy/core/config/constant/constant.dart';
 import 'package:lets_buy/core/config/extensions/firebase.dart';
@@ -8,6 +10,7 @@ import 'package:lets_buy/core/config/widgets/elevated_button_custom.dart';
 import 'package:lets_buy/core/config/widgets/text_field_custome.dart';
 import 'package:lets_buy/features/auth/Services/auth_serveice.dart';
 import 'package:lets_buy/features/auth/Services/authentecation_service.dart';
+import 'package:lets_buy/features/auth/Services/file_services.dart';
 import 'package:lets_buy/features/home_screen/home.dart';
 import 'package:path/path.dart' as path;
 
@@ -37,8 +40,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       pickedimage = await picker.pickImage(source: ImageSource.gallery);
       fileName = path.basename(pickedimage!.path);
       imageFile = File(pickedimage!.path);
+
       setState(() {});
-      print(imageFile!.path);
     } catch (e) {
       print(e);
     }
@@ -165,6 +168,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               });
                               return;
                             }
+
+                            String? imageUrl;
+
+                            if (imageFile != null) {
+                              imageUrl = await FileService().uploadeimage(fileName, imageFile!, context);
+                              context.logedInUser!.updatePhotoURL(imageUrl);
+                            }
+                            await FirebaseChatCore.instance.createUserInFirestore(
+                              types.User(
+                                firstName: userName.text,
+                                id: re.user!.uid,
+                                imageUrl: imageUrl,
+                                lastName: '',
+                              ),
+                            );
                             final res = await AuthService().signUp(
                                 email: email.text,
                                 password: passwordController.text,
@@ -180,7 +198,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(snakBar);
                             } else {
                               final res = await AuthService().completeProfile(
-                                  fcmUserId: context.logedInUser!.uid, bio: address.text, avatar: imageFile!.path);
+                                  fcmUserId: context.logedInUser!.uid,
+                                  bio: address.text,
+                                  avatar: imageFile!.path,
+                                  imageUrl: imageUrl);
 
                               Navigator.of(context).pushNamedAndRemoveUntil(HomeScreen.routeName, (route) => false);
                             }

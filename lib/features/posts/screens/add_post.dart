@@ -1,17 +1,20 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_switch/flutter_switch.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lets_buy/core/config/constant/constant.dart';
 import 'package:lets_buy/core/config/enums/enums.dart';
 import 'package:lets_buy/core/config/widgets/drop_down_custom.dart';
 import 'package:lets_buy/core/config/widgets/elevated_button_custom.dart';
-import 'package:lets_buy/core/config/widgets/picked_images_widget.dart';
 import 'package:lets_buy/core/config/widgets/text_field_custome.dart';
-import 'package:lets_buy/features/auth/Providers/auth_state_provider.dart';
 import 'package:lets_buy/features/auth/Services/file_services.dart';
+import 'package:lets_buy/features/posts/models/category_model.dart';
+import 'package:lets_buy/features/posts/models/type_model.dart';
+import 'package:lets_buy/features/posts/services/post_db_service.dart';
+import 'package:lets_buy/features/posts/widgets/category_dropdown.dart';
+import 'package:lets_buy/features/posts/widgets/types_dropdown.dart';
+import 'package:lets_buy/features/search/search_provider.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 
 class AddPostScreen extends StatefulWidget {
@@ -27,26 +30,26 @@ class _AddPostScreenState extends State<AddPostScreen> {
   TextEditingController tagsController = TextEditingController();
   TextEditingController descController = TextEditingController();
 
-  bool isSwitched = true;
-  List<String> category1 = categories.keys.toList();
-  List<String> category2 = [];
-  String selectedCategory1 = 'اختر';
-  String selectedCategory2 = 'اختر';
-  String productStatus = 'جديد';
+  Category? _selectedCategory;
+  TypeModel? _selectedType;
+
+  String productStatus = productStatusList.first;
   String symbol = 'Ls';
-  bool visible = false;
   String postType = 'حمص';
-  List<XFile> pickedimages = [];
+
+  XFile? pickedimage;
+  String fileName = '';
+  File? imageFile;
+  bool isLoading = false;
 
   _pickImage() async {
     final picker = ImagePicker();
     try {
-      var picked = await picker.pickMultiImage();
-      if (picked.isNotEmpty) {
-        pickedimages.addAll(picked);
-
-        setState(() {});
-      }
+      pickedimage = await picker.pickImage(source: ImageSource.gallery);
+      fileName = path.basename(pickedimage!.path);
+      imageFile = File(pickedimage!.path);
+      setState(() {});
+      print(imageFile!.path);
     } catch (e) {
       print(e);
     }
@@ -54,92 +57,56 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    category2 = categories[selectedCategory1]!;
-
     return Scaffold(
-      backgroundColor: dark,
+      backgroundColor: white,
       appBar: AppBar(
-        backgroundColor: dark,
+        backgroundColor: purple,
         elevation: 0.0,
-        title: const Text('اضافة منشور', style: appBarTextStyle),
+        title: const Text('اضافة خدمة', style: appBarTextStyle),
         centerTitle: true,
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+        padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(100, 0, 100, 10),
-            child: InkWell(
+          InkWell(
               onTap: () {
                 _pickImage();
                 setState(() {});
               },
-              child: Container(
-                  height: 100,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: purple),
-                    color: dark,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.add_photo_alternate_outlined,
-                    color: white,
-                    size: 30,
-                  )),
-            ),
-          ),
-          (pickedimages.isNotEmpty)
-              ? SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    itemBuilder: (context, i) {
-                      return PickedImagesWidget(
-                        url: File(pickedimages[i].path),
-                        onTap: () {
-                          pickedimages.removeAt(i);
-                          setState(() {});
-                        },
-                      );
-                    },
-                    itemCount: pickedimages.length,
-                  ),
-                )
-              : const SizedBox.shrink(),
+              child: (pickedimage == null)
+                  ? Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(color: gray, borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.all(25),
+                      height: 150,
+                      child: Image.asset(
+                        'assets/images/select_img.png',
+                        width: 75,
+                      ),
+                    )
+                  : Container(
+                      decoration: BoxDecoration(color: gray, borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.all(20),
+                      child: Image.file(
+                        imageFile!,
+                        height: 200,
+                        fit: BoxFit.contain,
+                      ))),
+          sizedBoxLarge,
           Padding(
-            padding: const EdgeInsets.only(right: 10, bottom: 20, top: 0),
+            padding: const EdgeInsets.only(right: 10, top: 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      const Text('متاح', style: style1),
-                      const SizedBox(width: 10),
-                      FlutterSwitch(
-                          value: isSwitched,
-                          height: 30,
-                          width: 50,
-                          toggleSize: 20,
-                          borderRadius: 50,
-                          activeColor: dark,
-                          inactiveColor: white,
-                          toggleColor: purple,
-                          switchBorder: Border.all(
-                            color: purple,
-                          ),
-                          onToggle: (value) {
-                            setState(() {
-                              isSwitched = value;
-                            });
-                          }),
-                    ],
-                  ),
+                const Text(
+                  'نوع الخدمة',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  width: 6,
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 1,
                   child: DropDownCustom(
                     categories: productStatusList,
                     selectedItem: productStatus,
@@ -156,6 +123,54 @@ class _AddPostScreenState extends State<AddPostScreen> {
           const SizedBox(height: 10),
           Row(
             children: [
+              const Text(
+                'اختر التصنيف',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Expanded(
+                child: CategoryDropdown(
+                  selectedCategory: _selectedCategory,
+                  onChanged: (Category? newValue) {
+                    setState(() {
+                      _selectedCategory = newValue;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Text(
+                'اختر النوع',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              Expanded(
+                child: TypesDropdown(
+                  selectedType: _selectedType,
+                  onChanged: (TypeModel? newValue) {
+                    setState(() {
+                      _selectedType = newValue;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Text(
+                'اختر المدينة',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                width: 6,
+              ),
               Expanded(
                 flex: 1,
                 child: DropDownCustom(
@@ -168,42 +183,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   },
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: DropDownCustom(
-                    categories: category1,
-                    selectedItem: selectedCategory1,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedCategory1 = newValue!;
-                        selectedCategory2 = categories[selectedCategory1]!.first;
-                        visible = true;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              (visible)
-                  ? Expanded(
-                      child: DropDownCustom(
-                        categories: category2,
-                        selectedItem: selectedCategory2,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedCategory2 = newValue!;
-                          });
-                        },
-                      ),
-                    )
-                  : const SizedBox.shrink()
             ],
           ),
           const SizedBox(height: 20),
@@ -233,7 +212,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   children: [
                     Text(
                       'ل.س',
-                      style: style2,
+                      style: style1,
                     ),
                   ],
                 ),
@@ -254,77 +233,79 @@ class _AddPostScreenState extends State<AddPostScreen> {
               )),
             ],
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          Row(
-            children: [title('كلمات مفتاحية'), Expanded(child: TextFieldCustom(text: '', controller: tagsController))],
-          ),
           const SizedBox(height: 20),
-          Consumer<AuthSataProvider>(builder: (context, value, child) {
-            return Center(
-                child: (value.authState == AuthState.notSet)
-                    ? ElevatedButtonCustom(
-                        text: 'اضافة',
-                        color: purple,
-                        onPressed: () async {
-                          if (selectedCategory1 == 'اختر' || selectedCategory2 == 'اختر') {
-                            var snackBar = const SnackBar(
-                              content: Text(
-                                'الرجاء اختيار تصنيف',
-                                style: style2,
-                              ),
-                              backgroundColor: Colors.red,
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                            return;
-                          }
-                          //change the state to loading
-                          Provider.of<AuthSataProvider>(context, listen: false)
-                              .changeAuthState(newState: AuthState.waiting);
-                          // split the tags and add them to the list
-                          List<String> keywords = tagsController.text.split(' ').toList();
+          Center(
+            child: !isLoading
+                ? ElevatedButtonCustom(
+                    text: 'اضافة',
+                    color: purple,
+                    onPressed: () async {
+                      if (_selectedCategory == null || _selectedType == null) {
+                        var snackBar = const SnackBar(
+                          content: Text(
+                            'الرجاء اختيار تصنيف',
+                            style: style2,
+                          ),
+                          backgroundColor: Colors.red,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        return;
+                      }
 
-                          String uid = FirebaseAuth.instance.currentUser!.uid;
+                      if (imageFile == null) {
+                        var snackBar = const SnackBar(
+                          content: Text(
+                            'الرجاء اختيار صورة',
+                            style: style2,
+                          ),
+                          backgroundColor: Colors.red,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        return;
+                      }
+                      //change the state to loading
+                      setState(() {
+                        isLoading = true;
+                      });
+                      String? imageUrl;
 
-                          List<String> images = [];
-                          //upload the images to firebase storage and get the urls
-                          images = await FileService().uploadeimages(pickedimages, context);
-                          //upload the post to firebase database
-                          // if (images.isNotEmpty) {
-                          //   Post post = Post(
-                          //       address: addressController.text,
-                          //       category1: selectedCategory1,
-                          //       category2: selectedCategory2,
-                          //       productStatus: productStatus,
-                          //       description: descController.text,
-                          //       isAvailable: isSwitched,
-                          //       price: priceController.text,
-                          //       symbol: symbol,
-                          //       city: postType,
-                          //       userId: uid,
-                          //       keywrds: keywords,
-                          //       photos: images);
+                      if (imageFile != null) {
+                        imageUrl = await FileService().uploadeimage(fileName, imageFile!, context);
+                      }
 
-                          //   await PostDbService().addPost(post, context);
-                          //   //change the state to notSet
-                          //   Provider.of<AuthSataProvider>(context, listen: false)
-                          //       .changeAuthState(newState: AuthState.notSet);
-                          //   SnackBar snackBar = const SnackBar(content: Text('تمت الاضافة بنجاح'));
+                      final res = await PostDbService().addNewService(
+                          name: addressController.text,
+                          serviceType:
+                              productStatus == productStatusList.first ? ServiceType.need_to : ServiceType.provided_to,
+                          typeId: _selectedType!.id,
+                          categoryId: _selectedCategory!.id,
+                          price: double.parse(priceController.text),
+                          description: descController.text,
+                          location: postType,
+                          image: imageFile?.path,
+                          imageUrl: imageUrl);
 
-                          //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                          //   Navigator.of(context).pushNamedAndRemoveUntil(HomeScreen.routeName, (route) => false);
-                          // } else {
-                          //   SnackBar snackBar =
-                          //       const SnackBar(content: Text('حدثت مشكلة اثناء تحميل الصور, الرجاء المحاولة لاحقاً'));
+                      setState(() {
+                        isLoading = false;
+                      });
+                      if (res == 'success') {
+                        SnackBar snackBar = const SnackBar(content: Text('تمت الاضافة بنجاح'));
 
-                          //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                          // }
-                        })
-                    : const CircularProgressIndicator(
-                        color: purple,
-                      ));
-          })
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        context.read<SearchProvider>().getServices();
+                        Navigator.of(context).pop();
+                      } else {
+                        SnackBar snackBar = SnackBar(content: Text(res));
+
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+
+                      //   //change the state to notSet
+                    })
+                : const CircularProgressIndicator(
+                    color: purple,
+                  ),
+          )
         ],
       ),
     );
