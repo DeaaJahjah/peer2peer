@@ -55,10 +55,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     children: [
                       TextFieldCustom(
-                          keyboardType: TextInputType.number, text: 'البريد الالكتروني', controller: emailController),
+                          keyboardType: TextInputType.emailAddress,
+                          text: 'البريد الالكتروني',
+                          controller: emailController),
                       sizedBoxMedium,
                       TextFieldCustom(
-                          keyboardType: TextInputType.number, text: 'كلمة المرور', controller: passwordcontroller),
+                          keyboardType: TextInputType.text, text: 'كلمة المرور', controller: passwordcontroller),
                       sizedBoxLarge,
                       isLoading
                           ? const CustomProgress()

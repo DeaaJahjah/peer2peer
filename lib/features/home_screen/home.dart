@@ -4,7 +4,6 @@ import 'package:lets_buy/core/config/enums/enums.dart';
 import 'package:lets_buy/core/config/widgets/drop_down_custom.dart';
 import 'package:lets_buy/core/config/widgets/elevated_button_custom.dart';
 import 'package:lets_buy/core/utils/shred_prefs.dart';
-import 'package:lets_buy/features/chat/rooms.dart';
 import 'package:lets_buy/features/home_screen/widgets/custom_drawer.dart';
 import 'package:lets_buy/features/posts/models/category_model.dart';
 import 'package:lets_buy/features/posts/models/service_model.dart';
@@ -87,13 +86,11 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Icon(Icons.filter_alt),
             )
           ],
-          leading: InkWell(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const RoomsPage(),
-                ));
-              },
-              child: const Icon(Icons.message)),
+          // leading: InkWell(
+          //     onTap: () {
+
+          //     },
+          //     child: const Icon(Icons.message)),
           title: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: TextField(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lets_buy/core/config/extensions/firebase.dart';
 import 'package:lets_buy/core/utils/shred_prefs.dart';
 import 'package:lets_buy/features/auth/Services/authentecation_service.dart';
+import 'package:lets_buy/features/chat/rooms.dart';
 import 'package:lets_buy/features/posts/screens/add_post.dart';
 import 'package:lets_buy/features/posts/screens/favourite_screen.dart';
 import 'package:lets_buy/features/posts/screens/my_posts_screen.dart';
@@ -27,6 +28,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               setState(() {});
             },
             child: UserAccountsDrawerHeader(
+              
               accountName: Text(SharedPrefs.prefs.getString('name') ?? '', style: const TextStyle(color: Colors.black)),
               accountEmail: null,
               currentAccountPicture: context.logedInUser!.photoURL == null || context.logedInUser!.photoURL == ''
@@ -40,6 +42,17 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 color: Colors.white,
               ),
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.message, color: Colors.black),
+            title: const Text('الرسائل', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const RoomsPage(),
+              ));
+
+              // Handle add service action
+            },
           ),
           ListTile(
             leading: const Icon(Icons.add, color: Colors.black),
@@ -66,14 +79,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
               // Handle my favorites action
             },
           ),
+          const Spacer(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.black),
             title: const Text('تسجيل خروج', style: TextStyle(color: Colors.black)),
-            onTap: () {
+            onTap: () async {
               SharedPrefs.prefs.clear();
-              // SharedPrefs.prefs.;
 
               FlutterFireAuthServices().signOut(context);
+
+              //  await FirebaseChatCore.instance.
               // Handle sign out action
             },
           ),

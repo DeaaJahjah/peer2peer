@@ -29,7 +29,7 @@ class SplashScreen extends StatelessWidget {
       }
     });
     return Scaffold(
-      backgroundColor: dark,
+      backgroundColor: purple,
       body: Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -40,25 +40,25 @@ class SplashScreen extends StatelessWidget {
               curve: Curves.bounceInOut,
               direction: Direction.vertical,
               offset: 0.5,
-              child: Column(
+              child: const Column(
                 children: [
                   // SvgPicture.asset(
                   //   'assets/images/logo.svg',
                   //   height: MediaQuery.sizeOf(context).height * 0.70,
                   // ),
-                  Image.asset(
-                    'assets/images/logo-with-text.png',
-                    height: MediaQuery.sizeOf(context).height * 0.25,
-                  ),
-                  // sizedBoxSmall,
-                  // const Text(
-                  //   'Let\'s Buy',
-                  //   style: TextStyle(fontSize: 24),
+                  // Image.asset(
+                  //   'assets/images/logo-with-text.png',
+                  //   height: MediaQuery.sizeOf(context).height * 0.25,
                   // ),
-                  const SizedBox(
+                  // sizedBoxSmall,
+                  Text(
+                    'peer2peer',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  SizedBox(
                     height: 20,
                   ),
-                  const CircularProgressIndicator(color: purple),
+                  CircularProgressIndicator(color: purple),
                 ],
               )),
         ],
